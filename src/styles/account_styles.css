@@ -1,0 +1,61 @@
+.loginform, .registerform{
+    padding: 2em;
+    max-width: 100%;
+    color: white;
+    box-shadow: 0 4 6 rgba(22, 22, 26, 0.18);
+}
+
+.modal-body {
+    padding: 0px;
+}
+
+.btn-close {
+    position: absolute;
+    right: 0;
+    padding: 1em;
+}
+
+.modal-content {
+    width: 80%;
+    margin: 0px auto;
+}
+
+.modal-body {
+    padding: 0px;
+}
+
+h1 {
+    font-size: 2.3em;
+    font-weight: bold;
+}
+
+.form-control {
+    background: inherit;
+    color: white;
+    padding-left: 0px;
+    border-bottom: 1px solid white;
+}
+
+.registerform .btn {
+    width: 100%;
+    font-weight: 800;
+    background-color: white;
+    border-radius: 0;
+    padding: 0.5em 0;
+}
+
+.loginform .btn {
+    width: 100%;
+    font-weight: 800;
+    background-color: white;
+    border-radius: 0;
+    padding: 0.5em 0;
+}
+
+.registerform .btn:hover {
+    color: #333;
+}
+
+.loginform .btn:hover {
+    color: #333;
+}

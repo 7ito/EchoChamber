@@ -10,7 +10,6 @@ I will be undertaking project topic #2 which is the MyDiscussionForum website. T
 ### Requirements List
 * New users are able to register for an account
 * Registered users are able to:
-    * Create their own subcommunity
     * Submit posts (can be text, links to images, videos, social media posts)
     * Make comments
     * Edit their own posts/comments

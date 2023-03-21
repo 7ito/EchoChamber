@@ -58,6 +58,15 @@ CREATE TABLE Comment (
         ON DELETE SET NULL ON UPDATE CASCADE
 )
 
+CREATE TABLE Saved (
+    userID INTEGER,
+    communityID INTEGER,
+    FOREIGN KEY (userID) REFERENCES User(userID)
+        ON DELETE SET NULL ON UPDATE CASCADE,
+    FOREIGN KEY (communityID) REFERENCES Community(communityID)
+        ON DELETE SET NULL ON UPDATE CASCADE
+)
+
 INSERT User (username, password) VALUES ('bobthebuilder', 'canhefixit');
 INSERT User (username, password) VALUES ('brolak', 'password');
 INSERT User (username, password) VALUES ('mkleo', 'goat');
@@ -65,3 +74,6 @@ INSERT User (username, password) VALUES ('miamiheat', 'jimmybutler');
 
 INSERT Community (name, description, rules, banner, creatorID) VALUES ('MechanicalKeyboards', 'A place to discuss mechanical keyboards', 'Do not be cringe', 'banner', 1);
 INSERT Community (name, description, rules, banner, creatorID) VALUES ('NBA', 'A place to discuss the NBA/basketball', 'Do not post like this is r/nba', 'nbabanner', 4);
+
+INSERT Saved VALUES(1, 1);
+INSERT Saved VALUES(1, 2);

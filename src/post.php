@@ -69,8 +69,9 @@
         echo "</div></div></div>";
 
         if ($result->num_rows > 0) {
+            $depth++;
             while ($row = $result->fetch_assoc()) {
-                checkReplies($row["commentID"], $conn, ++$depth);
+                checkReplies($row["commentID"], $conn, $depth);
             }
         } 
     }

@@ -29,9 +29,6 @@
             <?php
                 if (isset($_SESSION["user"]) && isset($_SESSION["userID"])) {
                     echo "<a href=\"account_loggedin.html\" class=\"nav-link active\">". $_SESSION["user"] ."</a>";
-                    // echo $_SESSION["userID"];
-                    $query = "SELECT communityID FROM Saved WHERE userID = ". $_SESSION["userID"];
-
                 } else {
                     echo "<a href=\"signin.php\" class=\"nav-link active\">Account</a>";
                 }

@@ -22,9 +22,8 @@
     padding: 0px;
 }
 
-h1 {
-    font-size: 2.3em;
-    font-weight: bold;
+.modal h1 {
+    font-weight: normal;
 }
 
 .form-control {

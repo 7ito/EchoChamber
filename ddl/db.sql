@@ -34,6 +34,7 @@ CREATE TABLE Post (
     points INTEGER,
     posterID INTEGER,
     communityID INTEGER,
+    link VARCHAR(255),
     PRIMARY KEY (postID),
     FOREIGN KEY (posterID) REFERENCES User(userID)
         ON DELETE SET NULL ON UPDATE CASCADE,
@@ -50,8 +51,6 @@ CREATE TABLE Comment (
     commenterID INTEGER,
     postID INTEGER,
     PRIMARY KEY (commentID),
-    FOREIGN KEY (replyTo) REFERENCES Comment(commentID)
-        ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (commenterID) REFERENCES User(userID)
         ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (postID) REFERENCES Post(postID)
@@ -77,3 +76,14 @@ INSERT Community (name, description, rules, banner, creatorID) VALUES ('NBA', 'A
 
 INSERT Saved VALUES(1, 1);
 INSERT Saved VALUES(1, 2);
+
+INSERT Post (title, body, whenPosted, points, posterID, communityID) VALUES ("Test Post", "This is a text body for a test post", "2023-03-22 01:02:00", 1, 1, 1);
+INSERT Post (title, body, whenPosted, points, posterID, communityID) VALUES ("T1", "T1", "2023-03-23 01:02:00", 1, 1, 1);
+INSERT Post (title, body, whenPosted, points, posterID, communityID) VALUES ("Best keyboard?", "Gasket mount flex cut blocker 65%", "2023-03-22 01:14:00", 1, 2, 1);
+
+INSERT Comment (text, whenPosted, points, replyTo, commenterID, postID) VALUES ("This is a comment", "2023-03-22 12:00:00", 1, -1, 2, 1);
+INSERT Comment (text, whenPosted, points, replyTo, commenterID, postID) VALUES ("This is a reply to a comment", "2023-03-22 12:01:00", 1, 1, 2, 1);
+INSERT Comment (text, whenPosted, points, replyTo, commenterID, postID) VALUES ("This is a different reply to the same comment", "2023-03-22 12:02:00", 1, 1, 3, 1);
+INSERT Comment (text, whenPosted, points, replyTo, commenterID, postID) VALUES ("This is a different comment", "2023-03-22 12:01:00", 1, -1, 1, 1);
+
+DELETE FROM Saved WHERE userID = 1 and communityID = 1;

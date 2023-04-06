@@ -180,7 +180,14 @@
                                     mysqli_stmt_close($pfpStmt);
 
                                     echo '<div class="pfpcontainer"><img src="data:image/'. $type .';base64,'. base64_encode($image) .'"/></div>';
-                                    echo "<div class=\"text-center mt-2\"><button class=\"btn btn-warning\" data-bs-toggle=\"modal\" data-bs-target=\"#changePfp\">Change Profile Picture</button></div>";
+                                    if ($signedIn) {
+                                        if ($isAdmin) {
+                                            echo "<div class=\"text-center mt-2\"><button class=\"btn btn-warning\" data-bs-toggle=\"modal\" data-bs-target=\"#changePfp\">Change Profile Picture</button></div>";
+                                        }
+                                        elseif ($_SESSION["userID"] == $id) {
+                                            echo "<div class=\"text-center mt-2\"><button class=\"btn btn-warning\" data-bs-toggle=\"modal\" data-bs-target=\"#changePfp\">Change Profile Picture</button></div>";
+                                        }
+                                    }
                                     
                                 } else {
                                     if ($signedIn) {

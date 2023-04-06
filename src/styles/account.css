@@ -1,0 +1,27 @@
+.emptypfp {
+    border: 1px solid black;
+    width: 200px;
+    height: 200px;
+    margin: auto;
+}
+
+.emptypfp p {
+    padding-top: 2em;
+}
+
+.btn-close {
+    position: absolute;
+    right: 1%;
+    padding: 1em;
+}
+
+.pfpcontainer {
+    display: flex;
+}
+
+img {
+    border: 1px solid black;
+    width: 200px;
+    height: 200px;
+    margin: auto;
+}

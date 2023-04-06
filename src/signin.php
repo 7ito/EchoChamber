@@ -50,15 +50,19 @@
         </div>
     </nav>
     <div class="container pt-4">
-      <div class="card">
-        <div class="card-body text-center">
-          <h1 class="card-title">Account</h1>
-          <div class="card-body">
-            <button class="btn btn-primary" data-bs-toggle="modal" 
-            data-bs-target="#login">Log In</button>
-            <p>or</p>
-            <button class="btn btn-secondary" data-bs-toggle="modal"
-            data-bs-target="#register">Create an Account</button>
+      <div class="row justify-content-md-center">
+        <div class="col-4">
+          <div class="card">
+            <div class="card-body text-center">
+              <h1 class="card-title">Account</h1>
+              <div class="card-body">
+                <button class="btn btn-primary" data-bs-toggle="modal" 
+                data-bs-target="#login">Log In</button>
+                <p>or</p>
+                <button class="btn btn-secondary" data-bs-toggle="modal"
+                data-bs-target="#register">Create an Account</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

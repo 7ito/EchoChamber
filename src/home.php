@@ -1,6 +1,21 @@
 <?php
     session_start();
     require_once("connection.php");
+
+    $isDisabled = $isAdmin = false;
+    if (isset($_SESSION["user"]) && isset($_SESSION["userID"])) {
+      $adminResult = $conn->query("SELECT * FROM Admin WHERE userID = ". $_SESSION["userID"]);
+      if ($adminRow = $adminResult->fetch_assoc()) {
+          $isAdmin = true;
+      } 
+
+      $disabledResult = $conn->query("SELECT * FROM User WHERE userID = ". $_SESSION["userID"]);
+      if($disabledRow = $disabledResult->fetch_assoc()) {
+          if ($disabledRow["disabled"] == 1) {
+              $isDisabled = true;
+          }
+      } 
+    }
 ?>
 
 <!DOCTYPE html>
@@ -31,6 +46,11 @@
                 }
             ?>
           </li>
+          <?php
+            if ($isAdmin) {
+              echo '<li class="nav-item"><a href="findUser.php" class="nav-link active">Find User</a></li>';
+            }
+          ?>
         </ul>
       </div>
     </nav>
@@ -57,7 +77,9 @@
                         } else {
                           echo "<p>You have no saved communities!</p>";
                         }
-                        echo "<div class=\"text-center\"><button class=\"btn btn-outline-primary\" data-bs-toggle=\"modal\" data-bs-target=\"#createCommunity\">Create a Community</button></div>"; 
+                        if (!$isDisabled) {
+                          echo "<div class=\"text-center\"><button class=\"btn btn-outline-primary\" data-bs-toggle=\"modal\" data-bs-target=\"#createCommunity\">Create a Community</button></div>"; 
+                        }
                     } else {
                       echo "<p><a href=\"signin.php\">Sign in or create an account</a> to save communities</p>";
                     }

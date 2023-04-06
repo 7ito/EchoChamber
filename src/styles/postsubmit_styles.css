@@ -39,3 +39,8 @@
 .submitform .btn:hover {
     color: #333;
 }
+
+.deleteButton {
+    display: inline;
+    padding-left: 0.5em;
+}

@@ -11,6 +11,7 @@ CREATE TABLE User (
     userID INTEGER AUTO_INCREMENT,
     username VARCHAR(20),
     password VARCHAR(50),
+    disabled tinyint(1) NOT NULL,
     PRIMARY KEY (userID)
 )
 
@@ -61,9 +62,25 @@ CREATE TABLE Saved (
     userID INTEGER,
     communityID INTEGER,
     FOREIGN KEY (userID) REFERENCES User(userID)
-        ON DELETE SET NULL ON UPDATE CASCADE,
+        ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (communityID) REFERENCES Community(communityID)
         ON DELETE SET NULL ON UPDATE CASCADE
+)
+
+CREATE TABLE userImages (
+    userID INTEGER NOT NULL, 
+    fileType VARCHAR(255) NOT NULl, 
+    image blob NOT NULL,
+    PRIMARY KEY (userID),
+    FOREIGN KEY (userID) REFERENCES User(userID)
+        ON DELETE CASCADE ON UPDATE CASCADE
+)
+
+CREATE TABLE Admin (
+    userID INTEGER NOT NULL,
+    PRIMARY KEY (userID),
+    FOREIGN KEY (userID) REFERENCES User(userID)
+        ON DELETE CASCADE ON UPDATE CASCADE
 )
 
 INSERT User (username, password) VALUES ('bobthebuilder', 'canhefixit');

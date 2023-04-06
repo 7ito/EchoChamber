@@ -3,8 +3,10 @@
     require_once("connection.php");
 
     $title = $body = $whenPosted = $poster = "";
-    $points = $posterID = $communityID = -1;
+    $points = $posterID = $communityID = $communityOwnerID = -1;
     $communityName = $desc = $rules = "";
+    $isDisabled = $isAdmin = $isCommunityOwner = $isPoster = false;
+    $userType = 0; //0 = user, 1 = community owner, 2 = admin
 
     if (isset($_GET["id"])) {
         $select = "SELECT * FROM Post WHERE postId = ". $_GET["id"];
@@ -30,14 +32,42 @@
                 $communityName = $commRow["name"];
                 $desc = $commRow["description"];
                 $rules = $commRow["rules"];
+                $communityOwnerID = $commRow["creatorID"];
             }
         }
+
+        if (isset($_SESSION["user"]) && isset($_SESSION["userID"])) {
+            $adminResult = $conn->query("SELECT * FROM Admin WHERE userID = ". $_SESSION["userID"]);
+            if ($adminRow = $adminResult->fetch_assoc()) {
+                $isAdmin = true;
+            } 
+            if ($_SESSION["userID"] == $communityOwnerID) {
+                $isCommunityOwner = true;
+            }
+            if ($_SESSION["userID"] == $posterID) {
+                $isPoster = true;
+            }
+            $disabledResult = $conn->query("SELECT * FROM User WHERE userID = ". $_SESSION["userID"]);
+            if($disabledRow = $disabledResult->fetch_assoc()) {
+                if ($disabledRow["disabled"] == 1) {
+                    $isDisabled = true;
+                }
+            } 
+        } 
+
+        if ($isCommunityOwner) {
+            $userType = 1;
+        } 
+        if ($isAdmin) {
+            $userType = 2;
+        } 
+
     } else {
         header("location:home.php");
         exit;
     }
 
-    function checkReplies($commentID, $conn, $depth) {
+    function checkReplies($commentID, $conn, $depth, $userType, $isDisabled) {
         $getReplies = "SELECT * FROM Comment WHERE replyTo = ". $commentID;
         $result = $conn->query($getReplies);
 
@@ -47,23 +77,58 @@
         $commentRow = mysqli_fetch_assoc($commentResult);
 
         // get commenter data
-        $commenterQuery = "SELECT username FROM User WHERE userID = ". $commentRow["commenterID"];
+        $commenterQuery = "SELECT * FROM User WHERE userID = ". $commentRow["commenterID"];
         $userResult = $conn->query($commenterQuery);
         $userRow = mysqli_fetch_assoc($userResult);
 
         echo "<div style=\"padding-left: ". $depth*20 ."px\"><div class=\"card\"><div class=\"card-body\">";
         echo "<p class=\"card-text\">". $commentRow["text"];
-        echo "<p class\"card-text\"><small class=\"text-muted\">Posted by ". $userRow["username"]. ", on ". $commentRow["whenPosted"]. "</small></p>";
+        echo "<p class\"card-text\"><small class=\"text-muted\">Posted by <a href=\"account.php?id=". $userRow["userID"] ."\">". $userRow["username"]. "</a>, on ". $commentRow["whenPosted"]. "</small></p>";
 
-        if (isset($_SESSION["user"]) && isset($_SESSION["userID"])) {
+        if (isset($_SESSION["user"]) && isset($_SESSION["userID"]) && !$isDisabled) {
             echo "<button class=\"btn btn-outline-primary\" data-bs-toggle=\"collapse\" data-bs-target=\"#replyForm". $commentID ."\" aria-expanded=\"false\" aria-controls=\"replyForm". $commentID ."\">Reply</button>";
             echo "<div id=\"replyForm". $commentID ."\" class=\"collapse\">";
             echo "<form action=\"submitComment.php\" method=\"post\">";
-            echo "<div><textarea class=\"form-control\" name=\"body\" id=\"body\" rows=\"4\" required></textarea>";
-            echo "<input type=\"text\" name=\"replyTo\" value=\"". $commentID ."\" hidden></div>";
+            echo "<div><textarea class=\"form-control\" name=\"body\" id=\"body\" rows=\"4\" required></textarea></div>";
+            echo "<input type=\"text\" name=\"replyTo\" value=\"". $commentID ."\" hidden>";
             echo "<input type=\"text\" name=\"postID\" value=\"". $_GET["id"]. "\" hidden>";
             echo "<input type=\"submit\" class=\"btn btn-primary\" name=\"postReply\" value=\"Submit\">";
             echo "</form></div>";
+
+           if ($_SESSION["userID"] == $commentRow["commenterID"]) {
+                echo '<button class="btn btn-outline-primary ms-2" data-bs-toggle="collapse" data-bs-target="#editCommentForm'. $commentID .'" aria-expanded="false" aria-controls"editCommentForm'. $commentID . '">Edit</button>';
+                echo '<div id="editCommentForm'. $commentID .'" class="collapse">';
+                echo '<form action="editComment.php" method="post">';
+                echo '<div><textarea class="form-control" name="text" rows="4" required>'. $commentRow["text"] .'</textarea></div>';
+                echo "<input type=\"text\" name=\"postID\" value=\"". $_GET["id"]. "\" hidden>";
+                echo '<input type="text" name="commentID" value="'. $commentRow["commentID"]. '" hidden>';
+                echo '<input type="submit" class="btn btn-primary" name="submitEditComment" value="Submit Edit">';
+                echo '</form></div>';
+
+                echo '<form action="deleteComment.php" method="post" class="deleteButton">';
+                echo '<input type="text" name="normalUser" value="true" hidden>';
+                echo '<input type="text" name="commentID" value="'. $commentRow["commentID"] .'" hidden>'; 
+                echo '<input type="text" name="postID" value="'. $_GET["id"] .'" hidden>';
+                echo '<input type="submit" class="btn btn-danger" name="submitDelete" value="Delete">';
+                echo '</form>';
+            } else {
+                if ($userType == 1) {
+                    echo '<form action="deleteComment.php" method="post" class="deleteButton">';
+                    echo '<input type="text" name="communityOwner" value="true" hidden>';
+                    echo '<input type="text" name="commentID" value="'. $commentRow["commentID"] .'" hidden>'; 
+                    echo '<input type="text" name="postID" value="'. $_GET["id"] .'" hidden>';
+                    echo '<input type="submit" class="btn btn-danger" name="submitDelete" value="Delete">';
+                    echo '</form>';
+                }
+                if ($userType == 2) {
+                    echo '<form action="deleteComment.php" method="post" class="deleteButton">';
+                    echo '<input type="text" name="admin" value="true" hidden>';
+                    echo '<input type="text" name="commentID" value="'. $commentRow["commentID"] .'" hidden>'; 
+                    echo '<input type="text" name="postID" value="'. $_GET["id"] .'" hidden>';
+                    echo '<input type="submit" class="btn btn-danger" name="submitDelete" value="Delete">';
+                    echo '</form>';
+                }
+            }
         }
 
         echo "</div></div></div>";
@@ -71,7 +136,7 @@
         if ($result->num_rows > 0) {
             $depth++;
             while ($row = $result->fetch_assoc()) {
-                checkReplies($row["commentID"], $conn, $depth);
+                checkReplies($row["commentID"], $conn, $depth, $userType, $isDisabled);
             }
         } 
     }
@@ -100,11 +165,17 @@
             <?php
                 if (isset($_SESSION["user"]) && isset($_SESSION["userID"])) {
                     echo "<a href=\"account.php\" class=\"nav-link active\">". $_SESSION["user"] ."</a>";
+
                 } else {
                     echo "<a href=\"signin.php\" class=\"nav-link active\">Account</a>";
                 }
             ?>
           </li>
+          <?php
+            if ($isAdmin) {
+              echo '<li class="nav-item"><a href="findUser.php" class="nav-link active">Find User</a></li>';
+            }
+          ?>
         </ul>
       </div>
     </nav>
@@ -118,10 +189,26 @@
                             <p class="card-text"><?php echo $body ?></p>
                         </div>
                         <div class="card-footer">
-                            <?php echo "Posted by ". $poster. ", on ". $whenPosted; ?>
+                            <?php echo "Posted by <a href=\"account.php?id=". $posterID ."\">". $poster. "</a>, on ". $whenPosted; ?>
                             <?php
-                                if(isset($_SESSION["user"]) && isset($_SESSION["userID"])) {
-                                    echo "<button class=\"btn btn-outline-primary\" data-bs-toggle=\"collapse\" data-bs-target=\"#commentForm\" aria-expanded=\"false\" aria-controls=\"commentForm\">Leave a comment</button>"; 
+                                if(isset($_SESSION["user"]) && isset($_SESSION["userID"]) && !$isDisabled) {
+                                    echo "<button class=\"btn btn-outline-primary ms-2\" data-bs-toggle=\"collapse\" data-bs-target=\"#commentForm\" aria-expanded=\"false\" aria-controls=\"commentForm\">Leave a comment</button>"; 
+                                    if ($posterID == $_SESSION["userID"]) {
+                                        echo "<button class=\"btn btn-outline-primary ms-2\" data-bs-toggle=\"modal\" data-bs-target=\"#editPost\">Edit</button>"; 
+                                        echo '<form action="deletePost.php" method="post" class="deleteButton">';
+                                        echo '<input type="text" name="normalUser" value="true" hidden>';
+                                        echo '<input type="text" name="postID" value="'. $_GET["id"] .'" hidden>';
+                                        echo '<input type="text" name="communityID" value="'. $communityName .'" hidden>';
+                                        echo '<input type="submit" class="btn btn-danger" name="submitDelete" value="Delete">';
+                                        echo '</form>';
+                                    }
+                                    if ($isAdmin || $isCommunityOwner) {
+                                        echo '<form action="deletePost.php" method="post" class="deleteButton">';
+                                        echo '<input type="text" name="postID" value="'. $_GET["id"] .'" hidden>';
+                                        echo '<input type="text" name="communityID" value="'. $communityName .'" hidden>';
+                                        echo '<input type="submit" class="btn btn-danger" name="submitDelete" value="Delete (as admin)">';
+                                        echo '</form>';
+                                    }
                                 }
                             ?>
                         </div>
@@ -147,9 +234,9 @@
 
                                 if ($commentResult->num_rows > 0) {
                                     while ($row = $commentResult->fetch_assoc()) {
-                                        checkReplies($row["commentID"], $conn, 0);
+                                        checkReplies($row["commentID"], $conn, 0, $userType, $isDisabled);
                                     }
-                                } else {
+                                } else {    
                                     echo "<p class=\"card-text\">There are no comments yet.</p>";
                                 }
                             ?>
@@ -162,7 +249,7 @@
                     <div class="card-body">
                         <h1 class="card-title">Sidebar</h1>
                         <?php
-                            if (isset($_SESSION["user"]) && isset($_SESSION["userID"])) {
+                            if (isset($_SESSION["user"]) && isset($_SESSION["userID"]) && !$isDisabled) {
                                 echo "<div class=\"text-center pt-3\"><button class=\"btn btn-primary\" data-bs-toggle=\"modal\" data-bs-target=\"#submit\">Submit a Post</button></div>";
                             }
                             echo "<h3 class=\"card-text pt-3\">Description</h3>";
@@ -203,6 +290,26 @@
                         </form>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editPost">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+                    <h3>Edit Post</h3>
+                    <form action="editPost.php" method="post">
+                        <div>
+                            <label for="body">Body</label>
+                            <textarea class="form-control" name="body" rows="7"><?php echo $body ?></textarea>
+                            <input type="text" name="postID" value="<?php echo $_GET["id"] ?>" hidden>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary mt-3">Submit</button>
+                        </div>
+                    </form>
+                </div>    
             </div>
         </div>
     </div>

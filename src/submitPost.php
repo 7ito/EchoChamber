@@ -15,8 +15,9 @@
 
                 $insertStmt->execute();
                 header("location:post.php?id=". mysqli_insert_id($conn));
+            } else {
+                echo "Error fetching post data";
             }
-            
         } else {
             header("location:home.php");
             exit;

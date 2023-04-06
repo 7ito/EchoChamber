@@ -4,6 +4,7 @@
 
     $communityID = $creatorID = -1;
     $name = $desc = $rules = $banner = "";
+    $isDisabled = $isAdmin = $isCommunityOwner = false;
 
     if (isset($_GET["id"])) {
         $select = "SELECT * FROM Community WHERE name = \"". $_GET["id"] ."\"";
@@ -16,6 +17,31 @@
             $rules = $row["rules"];
             $banner = $row["banner"];
             $creatorID = $row["creatorID"];
+
+            $creatorResult = $conn->query("SELECT * FROM User WHERE userID = ". $creatorID);
+            $creatorName = "";
+            if ($creatorRow = $creatorResult->fetch_assoc()) {
+                $creatorName = $creatorRow["username"];
+            } else {
+                $creatorName = "Error fetching creator data";
+            }
+        }
+
+        if (isset($_SESSION["user"]) && isset($_SESSION["userID"])) {
+            $adminResult = $conn->query("SELECT * FROM Admin WHERE userID = ". $_SESSION["userID"]);
+            if ($adminRow = $adminResult->fetch_assoc()) {
+                $isAdmin = true;
+            } 
+            if ($_SESSION["userID"] == $creatorID) {
+                $isCommunityOwner = true;
+            }
+
+            $disabledResult = $conn->query("SELECT * FROM User WHERE userID = ". $_SESSION["userID"]);
+            if($disabledRow = $disabledResult->fetch_assoc()) {
+                if ($disabledRow["disabled"] == 1) {
+                    $isDisabled = true;
+                }
+            } 
         }
     } else {
         header("location:home.php");
@@ -47,11 +73,17 @@
             <?php
                 if (isset($_SESSION["user"]) && isset($_SESSION["userID"])) {
                     echo "<a href=\"account.php\" class=\"nav-link active\">". $_SESSION["user"] ."</a>";
+
                 } else {
                     echo "<a href=\"signin.php\" class=\"nav-link active\">Account</a>";
                 }
             ?>
           </li>
+          <?php
+            if ($isAdmin) {
+              echo '<li class="nav-item"><a href="findUser.php" class="nav-link active">Find User</a></li>';
+            }
+          ?>
         </ul>
       </div>
     </nav>
@@ -75,7 +107,25 @@
 
                                         echo "<div class=\"card post\"><div class=\"card-body\">";
                                         echo "<a href=\"post.php?id=". $row["postID"] ."\" class=\"card-title\">". $row["title"] ."</a>";
-                                        echo "<p class=\"card-text\"><small class=\"text-muted\">Posted by ". $userRow["username"] .", on ". $row["whenPosted"]. "</small></p>";
+                                        echo "<p class=\"card-text\"><small class=\"text-muted\">Posted by <a href=\"account.php?id=". $row["posterID"] ."\">". $userRow["username"] ."</a>, on ". $row["whenPosted"]. "</small></p>";
+
+                                        if ($isAdmin || $isCommunityOwner) {
+                                            echo '<form action="deletePost.php" method="post">';
+                                            echo '<input type="text" name="postID" value="'. $row["postID"] .'" hidden>';
+                                            echo '<input type="text" name="communityID" value="'. $name .'" hidden>';
+                                            echo '<input type="submit" class="btn btn-danger" name="submitDelete" value="Delete">';
+                                            echo '</form>';
+                                        } elseif (isset($_SESSION["user"]) && isset($_SESSION["userID"])) {
+                                            if ($row["posterID"] == $_SESSION["userID"] && !$isDisabled) {
+                                                echo '<form action="deletePost.php" method="post">';
+                                                echo '<input type="text" name="normalUser" value="true" hidden>';
+                                                echo '<input type="text" name="postID" value="'. $row["postID"] .'" hidden>';
+                                                echo '<input type="text" name="communityID" value="'. $name .'" hidden>';
+                                                echo '<input type="submit" class="btn btn-danger" name="submitDelete" value="Delete">';
+                                                echo '</form>';
+                                            }
+                                        }
+
                                         echo "</div></div>";
                                     }
                                     echo "</div>";
@@ -93,13 +143,14 @@
                         <h1 class="card-title">Sidebar</h1>
                         <div class="card-text">
                             <?php
-                                if (isset($_SESSION["user"]) && isset($_SESSION["userID"])) {
+                                if (isset($_SESSION["user"]) && isset($_SESSION["userID"]) && !$isDisabled) {
                                     echo "<div class=\"text-center pt-3\"><button class=\"btn btn-primary\" data-bs-toggle=\"modal\" data-bs-target=\"#submit\">Submit a Post</button></div>";
                                 }
                                 echo "<h3 class=\"card-text pt-3\">Description</h3>";
                                 echo "<p class=\"card-text\">". $desc ."</p>";
                                 echo "<h3 class=\"card-text\">Rules</h3>";
                                 echo "<p class=\"card-text\">". $rules ."</p>";
+                                echo '<p class="card-text">Community owner: <a href="account.php?id='. $creatorID .'">'. $creatorName .'</a></p>';
                             ?>
                         </div>
                         <?php

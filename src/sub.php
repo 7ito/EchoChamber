@@ -95,7 +95,7 @@
                         <h1 class="card-title">Posts</h1>
                         <div class="card-text">
                             <?php
-                                $postQuery = "SELECT * FROM Post WHERE communityID = ". $communityID;
+                                $postQuery = "SELECT * FROM Post WHERE communityID = ". $communityID .' ORDER BY whenPosted DESC';
                                 $result = $conn->query($postQuery);
                                 
                                 if ($result->num_rows > 0) {

@@ -87,16 +87,17 @@
 
         if (isset($_SESSION["user"]) && isset($_SESSION["userID"]) && !$isDisabled) {
             echo "<button class=\"btn btn-outline-primary\" data-bs-toggle=\"collapse\" data-bs-target=\"#replyForm". $commentID ."\" aria-expanded=\"false\" aria-controls=\"replyForm". $commentID ."\">Reply</button>";
-            echo "<div id=\"replyForm". $commentID ."\" class=\"collapse\">";
-            echo "<form action=\"submitComment.php\" method=\"post\">";
-            echo "<div><textarea class=\"form-control\" name=\"body\" id=\"body\" rows=\"4\" required></textarea></div>";
-            echo "<input type=\"text\" name=\"replyTo\" value=\"". $commentID ."\" hidden>";
-            echo "<input type=\"text\" name=\"postID\" value=\"". $_GET["id"]. "\" hidden>";
-            echo "<input type=\"submit\" class=\"btn btn-primary\" name=\"postReply\" value=\"Submit\">";
-            echo "</form></div>";
-
-           if ($_SESSION["userID"] == $commentRow["commenterID"]) {
+            
+            if ($_SESSION["userID"] == $commentRow["commenterID"]) {
                 echo '<button class="btn btn-outline-primary ms-2" data-bs-toggle="collapse" data-bs-target="#editCommentForm'. $commentID .'" aria-expanded="false" aria-controls"editCommentForm'. $commentID . '">Edit</button>';
+                
+                echo '<form action="deleteComment.php" method="post" class="deleteButton">';
+                echo '<input type="text" name="normalUser" value="true" hidden>';
+                echo '<input type="text" name="commentID" value="'. $commentRow["commentID"] .'" hidden>'; 
+                echo '<input type="text" name="postID" value="'. $_GET["id"] .'" hidden>';
+                echo '<input type="submit" class="btn btn-danger" name="submitDelete" value="Delete">';
+                echo '</form>';
+                
                 echo '<div id="editCommentForm'. $commentID .'" class="collapse">';
                 echo '<form action="editComment.php" method="post">';
                 echo '<div><textarea class="form-control" name="text" rows="4" required>'. $commentRow["text"] .'</textarea></div>';
@@ -104,13 +105,6 @@
                 echo '<input type="text" name="commentID" value="'. $commentRow["commentID"]. '" hidden>';
                 echo '<input type="submit" class="btn btn-primary" name="submitEditComment" value="Submit Edit">';
                 echo '</form></div>';
-
-                echo '<form action="deleteComment.php" method="post" class="deleteButton">';
-                echo '<input type="text" name="normalUser" value="true" hidden>';
-                echo '<input type="text" name="commentID" value="'. $commentRow["commentID"] .'" hidden>'; 
-                echo '<input type="text" name="postID" value="'. $_GET["id"] .'" hidden>';
-                echo '<input type="submit" class="btn btn-danger" name="submitDelete" value="Delete">';
-                echo '</form>';
             } else {
                 if ($userType == 1) {
                     echo '<form action="deleteComment.php" method="post" class="deleteButton">';
@@ -129,10 +123,17 @@
                     echo '</form>';
                 }
             }
+            echo "<div id=\"replyForm". $commentID ."\" class=\"collapse\">";
+            echo "<form action=\"submitComment.php\" method=\"post\">";
+            echo "<div><textarea class=\"form-control\" name=\"body\" id=\"body\" rows=\"4\" required></textarea></div>";
+            echo "<input type=\"text\" name=\"replyTo\" value=\"". $commentID ."\" hidden>";
+            echo "<input type=\"text\" name=\"postID\" value=\"". $_GET["id"]. "\" hidden>";
+            echo "<input type=\"submit\" class=\"btn btn-primary\" name=\"postReply\" value=\"Submit\">";
+            echo "</form></div>";
         }
-
+        
         echo "</div></div></div>";
-
+        
         if ($result->num_rows > 0) {
             $depth++;
             while ($row = $result->fetch_assoc()) {

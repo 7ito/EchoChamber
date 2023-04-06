@@ -9,7 +9,7 @@
     require_once("connection.php");
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-      $query = "SELECT * FROM User WHERE username = '". $_POST["username"] ."' and password='". $_POST["password"] ."'";
+      $query = "SELECT * FROM User WHERE username = '". $_POST["username"] ."' and password='". md5($_POST["password"]) ."'";
       $result = mysqli_query($conn, $query);
       
       if ($row = mysqli_fetch_assoc($result)) {

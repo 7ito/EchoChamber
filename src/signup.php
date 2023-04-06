@@ -52,7 +52,7 @@
         $_SESSION["confirmpwError"] = $confirmpwerror;
 
         if (empty($usernameerror) && empty($passworderror) && empty($confirmpwerror)) {
-            $insert = "INSERT User (username, password) VALUES (\"". $_POST["username"] ."\", \"". $_POST["password"] ."\")";          
+            $insert = "INSERT User (username, password) VALUES (\"". $_POST["username"] ."\", \"". md5($_POST["password"]) ."\")";          
             if ($conn->query($insert) == TRUE) {
                 header("location:signin.php");
             } else {

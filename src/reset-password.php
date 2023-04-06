@@ -20,7 +20,7 @@
             $rset = $conn->query($query);
 
             if ($row = mysqli_fetch_assoc($rset)) {
-                if (strcmp(trim($_POST["oldpw"]), $row["password"]) != 0) {
+                if (md5($_POST["oldpw"]) == md5($row["password"])) {
                     $oldpwerror = "Incorrect password";
                 }
             } else {
@@ -48,7 +48,7 @@
         }
 
         if (empty($oldpwerror) && empty($newpwerror) && empty($confirmnewpwerror)) {
-            $update = "UPDATE User SET password = \"". $newpw ."\" WHERE userID = ". $_SESSION["userID"];
+            $update = "UPDATE User SET password = \"". md5($newpw) ."\" WHERE userID = ". $_SESSION["userID"];
             if ($conn->query($update) == TRUE) {
                 session_destroy();
                 header("location: signin.php");

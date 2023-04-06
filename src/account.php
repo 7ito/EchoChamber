@@ -180,6 +180,8 @@
                                     mysqli_stmt_close($pfpStmt);
 
                                     echo '<div class="pfpcontainer"><img src="data:image/'. $type .';base64,'. base64_encode($image) .'"/></div>';
+                                    echo "<div class=\"text-center mt-2\"><button class=\"btn btn-warning\" data-bs-toggle=\"modal\" data-bs-target=\"#changePfp\">Change Profile Picture</button></div>";
+                                    
                                 } else {
                                     if ($signedIn) {
                                         if ($_SESSION["userID"] == $id) {
@@ -235,11 +237,28 @@
                     <div class="pfpform bg-white">
                         <h3>Upload Profile Picture</h3>
                         <form action="uploadPfp.php" method="post" enctype="multipart/form-data">
-                            <label for="userImage"><small class="text-muted">File size must be less than 100kb and must be jpg, png, or gif.</small></label>
+                            <label for="userImage"><small class="text-muted">File size must be less than 100kb and must be of type jpg, png, or gif.</small></label>
                             <div class="mt-3"><input class="form-control" type="file" name="userImage" id="userImage" required></div>
                             <div><button class="btn btn-primary mt-3">Submit</button></div>
                         </form>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="changePfp" class="modal fade">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body">
+                <button type="button" class="btn btn-close" data-bs-dismiss="modal"></button>
+                <div class="changepfpForm bg-white">
+                    <h3>Change Profile Picture</h3>
+                    <form action="changePfp.php" method="post" enctype="multipart/form-data">
+                        <label for="userImage"><small class="text-muted">File size must be less than 100kb and must be of type jpg, png, or gif</small></label>
+                        <div class="mt-3"><input type="file" name="userImage" class="form-control" required></div>
+                        <div><button class="btn btn-primary mt-3">Submit</button></div>
+                    </form>
+                </div>
                 </div>
             </div>
         </div>

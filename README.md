@@ -15,6 +15,7 @@ This is the final version of the project for this course. The functionality is l
     * Log Out
     * Reset Password
     * Set Profile Picture
+    * Change Profile Picture
 * Community pages content dynamically created with data from database
 * Post pages content dynamically created with data from database
 * Comment section content dynamically created with data from database

@@ -92,7 +92,7 @@
             <div class="col-8">
                 <div class="card">
                     <div class="card-body">
-                        <h1 class="card-title">Posts</h1>
+                        <h1 class="card-title">Posts in <?php echo $name; ?></h1>
                         <div class="card-text">
                             <?php
                                 $postQuery = "SELECT * FROM Post WHERE communityID = ". $communityID .' ORDER BY whenPosted DESC';
